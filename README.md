@@ -7,6 +7,9 @@ MusicBrainz is a community-maintained open source encyclopedia of music informat
 ## Data Source
 The data is sourced from [Musicbrainz DB](https://musicbrainz.org/)
 
+### Database Schema
+https://musicbrainz.org/doc/MusicBrainz_Database/Schema#Schema
+
 ## Loading Data
 
 ```
