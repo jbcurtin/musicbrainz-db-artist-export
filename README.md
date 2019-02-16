@@ -3,7 +3,7 @@
 ## About musicbrainz-db-artist-export
 This repository contains [artists and places](https://github.com/jbcurtin/musicbrainz-db-artist-export/tree/master/sql-scripts) from Musicbrainz DB
 
-### Loading Data
+### Loading Data into pandas
 
 ```
 $ git clone https://github.com/jbcurtin/musicbrainz-db-artist-export.git $HOME/musicbrainz-db-artist-export
