@@ -23,7 +23,7 @@ OUTPUT_DIR: str = '/tmp/outputs'
 if not os.path.exists(OUTPUT_DIR):
   s.makedirs(OUTPUT_DIR)
 
-url: str = 'https://github.com/jbcurtin/musicbrainz-db-artist-export/blob/master/data/musicbrainz-db-artist-export.csv.xz'
+url: str = 'https://github.com/jbcurtin/musicbrainz-db-artist-export/blob/master/data/musicbrainz-db-artist-export.csv.xz?raw=true'
 filename: str = os.path.basename(url.rsplit('?', 1)[0])
 filepath: str = os.path.join(OUTPUT_DIR, filename)
 with open(filepath, 'wb') as output_stream:
@@ -34,9 +34,10 @@ with open(filepath, 'wb') as output_stream:
 
 filepath_csv: str = filepath.rsplit('.', 1)[0]
 logger.info(f'Writing to file[{filepath_csv}]')
-with lzma.open(filepath, 'rb') as compressed_stream:
-  with open(filepath_csv, 'w', encoding='utf-8') as stream:
-    stream.write(compressed_stream.read().decode('utf-8'))
+CHUNK_SIZE: int = 1024 * 4
+with lzma.open(filepath, 'r') as compressed_stream:
+  with open(filepath_csv, 'wb') as csv_stream:
+    csv_stream.write(compressed_stream.read())
 
 data_frame: pandas.core.frame.DataFrame = pandas.read_csv(filepath_csv, delimiter=',')
 print(data_frame)
