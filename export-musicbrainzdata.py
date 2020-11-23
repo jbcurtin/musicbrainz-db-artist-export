@@ -61,7 +61,7 @@ async def setup() -> None:
 
   global DB_POOL
   ctx: ssl.SSLContext = ssl.SSLContext()
-  DB_POOL = await asyncpg.create_pool(ssl=ctx)
+  DB_POOL = await asyncpg.create_pool()
 
 async def _commit_results(results: typing.List[typing.Any], headers: typing.List[str] = None, write_headers: bool = False, filepath: str = None) -> None:
   logger.info(f'Writing Records[{len(results)}] to File[{filepath}]')
@@ -192,7 +192,33 @@ async def extract_artists() -> None:
           continue
 
         datum_hashes.append(datum_hash)
-        results.append(datum)
+        # Expand column data into lists
+        def expand_list(data, col_idx):
+            records = []
+            for entry in data:
+                for val in entry[col_idx]:
+                    rec = entry[:]
+                    rec[col_idx] = val
+                    records.append(rec)
+
+            return records
+
+        vals = [datum]
+        for col_idx, length in enumerate([len(vals) for vals in datum]):
+            if length < 1:
+                for entry in vals:
+                    entry[col_idx] = None
+
+            elif length < 2:
+                for entry in vals:
+                    entry[col_idx] = entry[col_idx][0]
+
+            else:
+                vals = expand_list(vals, col_idx)
+
+        for val in vals:
+            results.append(datum)
+
         if len(results) > PREFTECH_COUNT * 5:
           if first_write:
             await _commit_results(results, headers, True, ARTIST_OUTPUT_PATH)

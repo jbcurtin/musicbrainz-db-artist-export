@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-'''
-To run this script, please use pipenv, conda, or venv and install the following packages.
-
-$ pip install pandas requests
-'''
 import logging
 import os
-import pandas
 import requests
 import lzma
+
+import pandas as pd
+import numpy as np
 
 logger = logging.getLogger('') # <--- Probable a good idea to name your logger. '' is the 'root' logger
 sysHandler = logging.StreamHandler()
@@ -39,6 +36,22 @@ with lzma.open(filepath, 'r') as compressed_stream:
   with open(filepath_csv, 'wb') as csv_stream:
     csv_stream.write(compressed_stream.read())
 
-data_frame: pandas.core.frame.DataFrame = pandas.read_csv(filepath_csv, delimiter=',')
-print(data_frame)
+def expand_list(df, list_column, new_column): 
+    lens_of_lists = df[list_column].apply(len)
+    origin_rows = range(df.shape[0])
+    destination_rows = np.repeat(origin_rows, lens_of_lists)
+    non_list_cols = (
+      [idx for idx, col in enumerate(df.columns)
+       if col != list_column]
+    )
+    expanded_df = df.iloc[destination_rows, non_list_cols].copy()
+    expanded_df[new_column] = (
+      [item for items in df[list_column] for item in items]
+      )
+    expanded_df.reset_index(inplace=True, drop=True)
+    return expanded_df
 
+data_frame: pd.core.frame.DataFrame = pd.read_csv(filepath_csv, delimiter=',')
+print(data_frame)
+import pdb; pdb.set_trace()
+pass
